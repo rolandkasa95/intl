@@ -20,7 +20,7 @@ namespace Symfony\Component\Intl\DateFormatter\DateFormat;
  */
 class MonthTransformer extends Transformer
 {
-    protected static $months = array(
+    protected static $months = [
         'January',
         'February',
         'March',
@@ -33,22 +33,22 @@ class MonthTransformer extends Transformer
         'October',
         'November',
         'December',
-    );
+    ];
 
     /**
      * Short months names (first 3 letters).
      */
-    protected static $shortMonths = array();
+    protected static $shortMonths = [];
 
     /**
      * Flipped $months array, $name => $index.
      */
-    protected static $flippedMonths = array();
+    protected static $flippedMonths = [];
 
     /**
      * Flipped $shortMonths array, $name => $index.
      */
-    protected static $flippedShortMonths = array();
+    protected static $flippedShortMonths = [];
 
     public function __construct()
     {
@@ -65,14 +65,14 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function format(\DateTime $dateTime, $length)
+    public function format(\DateTime $dateTime, int $length): string
     {
-        $matchLengthMap = array(
+        $matchLengthMap = [
             1 => 'n',
             2 => 'm',
             3 => 'M',
             4 => 'F',
-        );
+        ];
 
         if (isset($matchLengthMap[$length])) {
             return $dateTime->format($matchLengthMap[$length]);
@@ -88,7 +88,7 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function getReverseMatchingRegExp($length)
+    public function getReverseMatchingRegExp(int $length): string
     {
         switch ($length) {
             case 1:
@@ -114,7 +114,7 @@ class MonthTransformer extends Transformer
     /**
      * {@inheritdoc}
      */
-    public function extractDateOptions($matched, $length)
+    public function extractDateOptions(string $matched, int $length): array
     {
         if (!is_numeric($matched)) {
             if (3 === $length) {
@@ -129,8 +129,8 @@ class MonthTransformer extends Transformer
             $matched = (int) $matched;
         }
 
-        return array(
+        return [
             'month' => $matched,
-        );
+        ];
     }
 }

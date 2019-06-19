@@ -40,7 +40,7 @@ class FullTransformer
      * @param string $pattern  The pattern to be used to format and/or parse values
      * @param string $timezone The timezone to perform the date/time calculations
      */
-    public function __construct($pattern, $timezone)
+    public function __construct(string $pattern, string $timezone)
     {
         $this->pattern = $pattern;
         $this->timezone = $timezone;
@@ -49,7 +49,7 @@ class FullTransformer
         $notImplementedCharsMatch = $this->buildCharsMatch($this->notImplementedChars);
         $this->regExp = "/($this->quoteMatch|$implementedCharsMatch|$notImplementedCharsMatch)/";
 
-        $this->transformers = array(
+        $this->transformers = [
             'M' => new MonthTransformer(),
             'L' => new MonthTransformer(),
             'y' => new YearTransformer(),
@@ -65,8 +65,8 @@ class FullTransformer
             'k' => new Hour2401Transformer(),
             'm' => new MinuteTransformer(),
             's' => new SecondTransformer(),
-            'z' => new TimeZoneTransformer(),
-        );
+            'z' => new TimezoneTransformer(),
+        ];
     }
 
     /**
@@ -88,10 +88,8 @@ class FullTransformer
      */
     public function format(\DateTime $dateTime)
     {
-        $that = $this;
-
-        $formatted = preg_replace_callback($this->regExp, function ($matches) use ($that, $dateTime) {
-            return $that->formatReplace($matches[0], $dateTime);
+        $formatted = preg_replace_callback($this->regExp, function ($matches) use ($dateTime) {
+            return $this->formatReplace($matches[0], $dateTime);
         }, $this->pattern);
 
         return $formatted;
@@ -142,7 +140,7 @@ class FullTransformer
         $reverseMatchingRegExp = $this->getReverseMatchingRegExp($this->pattern);
         $reverseMatchingRegExp = '/^'.$reverseMatchingRegExp.'$/';
 
-        $options = array();
+        $options = [];
 
         if (preg_match($reverseMatchingRegExp, $value, $matches)) {
             $matches = $this->normalizeArray($matches);
@@ -176,24 +174,22 @@ class FullTransformer
      */
     public function getReverseMatchingRegExp($pattern)
     {
-        $that = $this;
-
         $escapedPattern = preg_quote($pattern, '/');
 
         // ICU 4.8 recognizes slash ("/") in a value to be parsed as a dash ("-") and vice-versa
         // when parsing a date/time value
         $escapedPattern = preg_replace('/\\\[\-|\/]/', '[\/\-]', $escapedPattern);
 
-        $reverseMatchingRegExp = preg_replace_callback($this->regExp, function ($matches) use ($that) {
+        $reverseMatchingRegExp = preg_replace_callback($this->regExp, function ($matches) {
             $length = \strlen($matches[0]);
             $transformerIndex = $matches[0][0];
 
             $dateChars = $matches[0];
-            if ($that->isQuoteMatch($dateChars)) {
-                return $that->replaceQuoteMatch($dateChars);
+            if ($this->isQuoteMatch($dateChars)) {
+                return $this->replaceQuoteMatch($dateChars);
             }
 
-            $transformers = $that->getTransformers();
+            $transformers = $this->getTransformers();
             if (isset($transformers[$transformerIndex])) {
                 $transformer = $transformers[$transformerIndex];
                 $captureName = str_repeat($transformerIndex, $length);
@@ -259,17 +255,17 @@ class FullTransformer
      */
     protected function normalizeArray(array $data)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($data as $key => $value) {
             if (!\is_string($key)) {
                 continue;
             }
 
-            $ret[$key[0]] = array(
+            $ret[$key[0]] = [
                 'value' => $value,
                 'pattern' => $key,
-            );
+            ];
         }
 
         return $ret;
@@ -319,7 +315,7 @@ class FullTransformer
         preg_match_all($this->regExp, $this->pattern, $matches);
         if (\in_array('yy', $matches[0])) {
             $dateTime->setTimestamp(time());
-            $year = $year > $dateTime->format('y') + 20 ? 1900 + $year : 2000 + $year;
+            $year = $year > (int) $dateTime->format('y') + 20 ? 1900 + $year : 2000 + $year;
         }
 
         $dateTime->setDate($year, $month, $day);
@@ -336,7 +332,7 @@ class FullTransformer
      */
     private function getDefaultValueForOptions(array $options)
     {
-        return array(
+        return [
             'year' => isset($options['year']) ? $options['year'] : 1970,
             'month' => isset($options['month']) ? $options['month'] : 1,
             'day' => isset($options['day']) ? $options['day'] : 1,
@@ -346,6 +342,6 @@ class FullTransformer
             'second' => isset($options['second']) ? $options['second'] : 0,
             'marker' => isset($options['marker']) ? $options['marker'] : null,
             'timezone' => isset($options['timezone']) ? $options['timezone'] : null,
-        );
+        ];
     }
 }

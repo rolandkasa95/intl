@@ -28,13 +28,9 @@ class GeneratorConfig
     /**
      * @var BundleWriterInterface[]
      */
-    private $bundleWriters = array();
+    private $bundleWriters = [];
 
-    /**
-     * @param string $sourceDir
-     * @param string $icuVersion
-     */
-    public function __construct($sourceDir, $icuVersion)
+    public function __construct(string $sourceDir, string $icuVersion)
     {
         $this->sourceDir = $sourceDir;
         $this->icuVersion = $icuVersion;
