@@ -87,7 +87,6 @@ final class Locale extends \Locale
 
             $fallback = locale_compose($localeSubTags);
             return false !== $fallback ? $fallback : null;
-
         }
 
         if (false !== $pos = strrpos($locale, '_')) {
